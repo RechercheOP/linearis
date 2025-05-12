@@ -1,0 +1,22 @@
+# Byte-code files
+*.pyc
+__pycache__/
+
+# Django stuff:
+*.log
+*.pot
+*.mo
+*.sqlite3
+media/
+
+# Environments
+.env 
+venv/
+
+# IDEs
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
