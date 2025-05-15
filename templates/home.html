@@ -1,0 +1,11 @@
+<h1>Bienvenue sur Linéaris</h1>
+
+{% if user.is_authenticated %}
+    <p>Bonjour, {{ user.username }} ! <a href="{% url 'logout' %}">Déconnexion</a></p>
+    <p><a href="#">Aller au Dashboard (à créer)</a></p>
+{% else %}
+    <p>Vous n'êtes pas connecté(e).</p>
+    <p><a href="{% url 'login' %}">Connexion</a> ou <a href="{% url 'register' %}">Inscription (à créer)</a></p>
+{% endif %}
+
+<p>Explorez les fonctionnalités de résolution de problèmes de Programmation Linéaire.</p>
