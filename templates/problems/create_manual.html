@@ -1,0 +1,102 @@
+{# templates/problems/create_manual.html #}
+{% extends 'base.html' %} {# Hérite de notre template de base #}
+{% load tailwind_filters %} {# Optionnel : si vous utilisez une librairie pour aider à styliser les formulaires avec Tailwind #}
+                                {# Ici, nous allons styliser manuellement pour plus de contrôle #}
+
+{% block title %}Saisie Manuelle - Linéaris{% endblock %}
+
+{% block content %}
+    <div class="bg-white p-6 rounded-lg shadow-md w-full max-w-lg mx-auto"> {# Conteneur stylisé #}
+        <h2 class="text-2xl font-bold mb-6 text-center">Créer un Problème (Saisie Manuelle)</h2>
+
+        {# Afficher les messages (succès, erreur, etc.) #}
+        {% if messages %}
+            <ul class="mb-4">
+                {% for message in messages %}
+                    <li{% if message.tags %} class="{{ message.tags }} p-2 rounded"{% endif %}>{{ message }}</li> {# Ajouter des classes pour styler les messages #}
+                {% endfor %}
+            </ul>
+        {% endif %}
+        {# Exemple de classes pour les messages : success -> bg-green-100 text-green-800, error -> bg-red-100 text-red-800 #}
+
+
+        <form method="post">
+            {% csrf_token %}
+
+            {# Affichage manuel des champs pour un meilleur contrôle du style #}
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="{{ form.nom.id_for_label }}">
+                    {{ form.nom.label }}
+                </label>
+                {{ form.nom }} {# Le champ d'input #}
+                 {% for error in form.nom.errors %} <p class="text-red-500 text-xs italic">{{ error }}</p> {% endfor %}
+            </div>
+
+            <div class="mb-4">
+                 <label class="block text-gray-700 text-sm font-bold mb-2" for="{{ form.description.id_for_label }}">
+                    {{ form.description.label }}
+                </label>
+                {{ form.description }}
+                 {% for error in form.description.errors %} <p class="text-red-500 text-xs italic">{{ error }}</p> {% endfor %}
+            </div>
+
+             <div class="mb-4">
+                 <label class="block text-gray-700 text-sm font-bold mb-2">
+                    {{ form.objective_type.label }}
+                </label>
+                {# Affichage manuel des options du choix #}
+                {% for radio in form.objective_type %}
+                    <div class="inline-block mr-4">
+                        {{ radio.tag }} {{ radio.choice_label }}
+                    </div>
+                {% endfor %}
+                 {% for error in form.objective_type.errors %} <p class="text-red-500 text-xs italic">{{ error }}</p> {% endfor %}
+            </div>
+
+             <div class="mb-4">
+                 <label class="block text-gray-700 text-sm font-bold mb-2" for="{{ form.num_variables.id_for_label }}">
+                    {{ form.num_variables.label }}
+                </label>
+                {{ form.num_variables }}
+                 {% for error in form.num_variables.errors %} <p class="text-red-500 text-xs italic">{{ error }}</p> {% endfor %}
+            </div>
+
+             <div class="mb-4">
+                 <label class="block text-gray-700 text-sm font-bold mb-2" for="{{ form.objective_coefficients_str.id_for_label }}">
+                    {{ form.objective_coefficients_str.label }}
+                 </label>
+                 <p class="text-gray-600 text-xs italic mb-2">Exemple : 3, 5, 0</p>
+                {{ form.objective_coefficients_str }}
+                 {% for error in form.objective_coefficients_str.errors %} <p class="text-red-500 text-xs italic">{{ error }}</p> {% endfor %}
+            </div>
+
+            <div class="mb-6">
+                 <label class="block text-gray-700 text-sm font-bold mb-2" for="{{ form.constraints_str.id_for_label }}">
+                    {{ form.constraints_str.label }}
+                 </label>
+                 <p class="text-gray-600 text-xs italic mb-2">Exemple (une contrainte par ligne) :<br>1,1;<=;10<br>2,0;>=;5</p>
+                {{ form.constraints_str }}
+                 {% for error in form.constraints_str.errors %} <p class="text-red-500 text-xs italic">{{ error }}</p> {% endfor %}
+            </div>
+
+
+            {# Erreurs non liées aux champs spécifiques #}
+            {% if form.non_field_errors %}
+                <div class="mb-4 p-2 bg-red-100 text-red-800 rounded">
+                    {% for error in form.non_field_errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full">
+                Sauvegarder le problème
+            </button>
+        </form>
+    </div>
+
+    {# Pour ajouter des classes Tailwind aux inputs, vous pouvez le faire manuellement ou utiliser un helper #}
+    {# Exemple manuel (à appliquer à chaque champ input/textarea/select) : class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" #}
+    {# Pour les radios, il faut styler différemment #}
+
+{% endblock %}

@@ -1,11 +1,122 @@
-<h1>Bienvenue sur Linéaris</h1>
+{% extends 'base.html' %}
 
-{% if user.is_authenticated %}
-    <p>Bonjour, {{ user.username }} ! <a href="{% url 'logout' %}">Déconnexion</a></p>
-    <p><a href="#">Aller au Dashboard (à créer)</a></p>
-{% else %}
-    <p>Vous n'êtes pas connecté(e).</p>
-    <p><a href="{% url 'login' %}">Connexion</a> ou <a href="{% url 'register' %}">Inscription (à créer)</a></p>
-{% endif %}
+{% block title %}Accueil - Linéaris{% endblock %}
 
-<p>Explorez les fonctionnalités de résolution de problèmes de Programmation Linéaire.</p>
+{% block content %}
+<div class="max-w-7xl mx-auto">
+    <!-- Hero Section -->
+    <section class="py-12 md:py-16">
+        <div class="bg-white rounded-2xl shadow-md overflow-hidden">
+            <div class="p-8 md:p-12">
+                <div class="flex flex-col md:flex-row items-center justify-between gap-8">
+                    <div class="space-y-6 max-w-2xl">
+                        <h1 class="text-3xl md:text-4xl font-bold text-gray-900">
+                            Bienvenue sur <span class="text-primary-600">Linéaris</span>
+                        </h1>
+                        
+                        {% if user.is_authenticated %}
+                            <div class="bg-primary-50 border-l-4 border-primary-600 p-4 rounded-md">
+                                <p class="text-lg">
+                                    Bonjour, <span class="font-semibold text-primary-700">{{ user.username }}</span> !
+                                </p>
+                                <p class="mt-4">
+                                    <a href="#" class="gradient-animation inline-block text-white font-medium rounded-lg px-5 py-2.5 shadow-md hover:shadow-lg transition-shadow">
+                                        Accéder à mon Dashboard
+                                    </a>
+                                    <a href="{% url 'create_manual_problem' %}" class="gradient-animation inline-block text-white font-medium rounded-lg px-5 py-2.5 shadow-md hover:shadow-lg transition-shadow">
+                                        Créer un Nouveau Problème (Manuel)
+                                    </a>
+                                </p>
+                            </div>
+                        {% else %}
+                            <div class="bg-slate-50 border border-gray-200 p-6 rounded-xl">
+                                <p class="text-lg text-gray-700 mb-4">
+                                    Vous n'êtes pas connecté(e). Connectez-vous pour accéder à toutes les fonctionnalités.
+                                </p>
+                                <div class="flex flex-wrap gap-4">
+                                    <a href="{% url 'login' %}" class="bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-lg px-5 py-2.5 shadow-sm hover:shadow-md transition-all">
+                                        Connexion
+                                    </a>
+                                    <a href="{% url 'register' %}" class="bg-white border border-primary-600 text-primary-600 hover:bg-primary-50 font-medium rounded-lg px-5 py-2.5 shadow-sm hover:shadow-md transition-all">
+                                        Inscription
+                                    </a>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="hidden md:block w-1/3 relative">
+                        <div class="aspect-square rounded-full bg-gradient-to-br from-primary-100 to-secondary-100 p-6 flex items-center justify-center shadow-lg">
+                            <div class="text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary-600 to-secondary-600">PL</div>
+                        </div>
+                        <div class="absolute -z-10 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-gradient-to-r from-primary-200 to-secondary-200 rounded-full blur-3xl opacity-20"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Preview -->
+    <section class="py-12">
+        <h2 class="text-2xl font-bold text-gray-900 mb-6">Explorez nos fonctionnalités</h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Feature Card 1 -->
+            <div class="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition-shadow border-t-4 border-primary-500">
+                <div class="h-12 w-12 bg-primary-100 text-primary-600 rounded-lg flex items-center justify-center mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                    </svg>
+                </div>
+                <h3 class="text-lg font-semibold mb-2">Saisie de Modèle</h3>
+                <p class="text-gray-600 mb-4">Créez votre modèle de programmation linéaire avec notre interface intuitive et facile à utiliser.</p>
+                <a href="#" class="text-primary-600 hover:text-primary-800 font-medium">Commencer →</a>
+            </div>
+            
+            <!-- Feature Card 2 -->
+            <div class="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition-shadow border-t-4 border-secondary-500">
+                <div class="h-12 w-12 bg-secondary-100 text-secondary-600 rounded-lg flex items-center justify-center mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                    </svg>
+                </div>
+                <h3 class="text-lg font-semibold mb-2">Import Intelligent</h3>
+                <p class="text-gray-600 mb-4">Importez vos énoncés de problèmes directement depuis un PDF ou une image.</p>
+                <a href="#" class="text-secondary-600 hover:text-secondary-800 font-medium">Essayer →</a>
+            </div>
+            
+            <!-- Feature Card 3 -->
+            <div class="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition-shadow border-t-4 border-green-500">
+                <div class="h-12 w-12 bg-green-100 text-green-600 rounded-lg flex items-center justify-center mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
+                    </svg>
+                </div>
+                <h3 class="text-lg font-semibold mb-2">Visualisation Graphique</h3>
+                <p class="text-gray-600 mb-4">Visualisez votre domaine réalisable et votre solution optimale pour les problèmes à deux variables.</p>
+                <a href="#" class="text-green-600 hover:text-green-800 font-medium">Explorer →</a>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Call to Action -->
+    <section class="py-10 mb-6">
+        <div class="bg-gradient-to-r from-primary-600 to-secondary-600 rounded-2xl shadow-lg">
+            <div class="p-8 md:p-12 text-center text-white">
+                <h2 class="text-2xl md:text-3xl font-bold mb-4">Prêt à résoudre vos problèmes de programmation linéaire ?</h2>
+                <p class="text-lg text-white/90 mb-8 max-w-2xl mx-auto">
+                    Linéaris vous offre tous les outils nécessaires pour modéliser, résoudre et analyser vos problèmes d'optimisation.
+                </p>
+                <div class="flex flex-wrap justify-center gap-4">
+                    <a href="#" class="bg-white text-primary-600 hover:bg-gray-100 font-medium rounded-lg px-6 py-3 shadow-md hover:shadow-lg transition-shadow">
+                        Commencer gratuitement
+                    </a>
+                    <a href="#" class="bg-transparent border border-white text-white hover:bg-white/10 font-medium rounded-lg px-6 py-3 transition-colors">
+                        En savoir plus
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}

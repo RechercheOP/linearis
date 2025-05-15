@@ -23,7 +23,7 @@ urlpatterns = [
     # Inclure les URLs d'authentification de Django
     path('accounts/', include('django.contrib.auth.urls')), # Fournit login, logout, password change/reset URLs
     path('users/', include('users.urls')),
-    # path('problems/', include('problems.urls')), # Exemple
+    path('problems/', include('problems.urls')),
 
     # Ajouter une page d'accueil simple pour l'instant
     path('', TemplateView.as_view(template_name='home.html'), name='home'),
