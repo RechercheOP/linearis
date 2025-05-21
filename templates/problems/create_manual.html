@@ -1,89 +1,384 @@
-{% extends 'base.html' %} 
+{% extends 'base.html' %}
 
 {% block title %}Saisie Manuelle - Linéaris{% endblock %}
 
+{# Assurez-vous que le chargement du filtre custom_filters est présent si vous l'utilisez #}
+{% load custom_filters %}
+
 {% block content %}
-    <div class="bg-white p-6 rounded-lg shadow-md w-full max-w-lg mx-auto">
-        <h2 class="text-2xl font-bold mb-6 text-center">Créer un Problème (Saisie Manuelle)</h2>
-        {% if messages %}
-            <ul class="mb-4">
-                {% for message in messages %}
-                    <li{% if message.tags %} class="{{ message.tags }} p-2 rounded"{% endif %}>{{ message }}</li> {# Ajouter des classes pour styler les messages #}
-                {% endfor %}
-            </ul>
-        {% endif %}
+<div class="max-w-7xl mx-auto">
+    <!-- Hero Section -->
+    <section class="py-12 md:py-16">
+        <div class="bg-white rounded-2xl shadow-md overflow-hidden">
+            <div class="p-8 md:p-12">
+                <div class="flex flex-col md:flex-row items-center justify-between gap-8">
+                    <div class="space-y-6 max-w-2xl w-full">
+                        <h1 class="text-3xl md:text-4xl font-bold text-gray-900">
+                            Créer un <span class="text-primary-600">Problème</span>
+                        </h1>
+                        
+                        <div class="bg-slate-50 border border-gray-200 p-6 rounded-xl">
+                            {% if messages %}
+                                <ul class="mb-4 space-y-2">
+                                    {% for message in messages %}
+                                        <li class="p-3 rounded-md {% if message.tags == 'success' %}bg-green-100 text-green-800{% elif message.tags == 'error' %}bg-red-100 text-red-800{% elif message.tags == 'warning' %}bg-yellow-100 text-yellow-800{% else %}bg-blue-100 text-blue-800{% endif %}">
+                                            {{ message }}
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            {% endif %}
 
+                            <form method="post" class="space-y-6" autocomplete="off">
+                                {% csrf_token %}
 
-        <form method="post">
-            {% csrf_token %}
+                                <!-- Nom du problème -->
+                                <div>
+                                    <label class="block text-gray-700 text-sm font-bold mb-2" for="{{ form.nom.id_for_label }}">
+                                        {{ form.nom.label }}
+                                    </label>
+                                    {{ form.nom|add_class:"shadow appearance-none border rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" }}
+                                    {% for error in form.nom.errors %}
+                                        <p class="text-red-500 text-xs italic mt-1">{{ error }}</p>
+                                    {% endfor %}
+                                </div>
 
-            <div class="mb-4">
-                <label class="block text-gray-700 text-sm font-bold mb-2" for="{{ form.nom.id_for_label }}">
-                    {{ form.nom.label }}
-                </label>
-                {{ form.nom }}
-                 {% for error in form.nom.errors %} <p class="text-red-500 text-xs italic">{{ error }}</p> {% endfor %}
-            </div>
+                                <!-- Description -->
+                                <div>
+                                    <label class="block text-gray-700 text-sm font-bold mb-2" for="{{ form.description.id_for_label }}">
+                                        {{ form.description.label }}
+                                    </label>
+                                    {{ form.description|add_class:"shadow appearance-none border rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 h-24 resize-y" }}
+                                    {% for error in form.description.errors %}
+                                        <p class="text-red-500 text-xs italic mt-1">{{ error }}</p>
+                                    {% endfor %}
+                                </div>
 
-            <div class="mb-4">
-                 <label class="block text-gray-700 text-sm font-bold mb-2" for="{{ form.description.id_for_label }}">
-                    {{ form.description.label }}
-                </label>
-                {{ form.description }}
-                 {% for error in form.description.errors %} <p class="text-red-500 text-xs italic">{{ error }}</p> {% endfor %}
-            </div>
+                                <!-- Type d'objectif -->
+                                <div>
+                                    <label class="block text-gray-700 text-sm font-bold mb-2">
+                                        {{ form.objective_type.label }}
+                                    </label>
+                                    <div class="flex items-center space-x-6">
+                                        {{ form.objective_type }}
+                                    </div>
+                                    {% for error in form.objective_type.errors %}
+                                        <p class="text-red-500 text-xs italic mt-1">{{ error }}</p>
+                                    {% endfor %}
+                                </div>
 
-             <div class="mb-4">
-                 <label class="block text-gray-700 text-sm font-bold mb-2">
-                    {{ form.objective_type.label }}
-                </label>
-                {% for radio in form.objective_type %}
-                    <div class="inline-block mr-4">
-                        {{ radio.tag }} {{ radio.choice_label }}
+                                <!-- Fonction objectif -->
+                                <div>
+                                    <div class="flex justify-between items-center mb-2">
+                                        <label class="block text-gray-700 text-sm font-bold" for="{{ form.objective_equation_str.id_for_label }}">
+                                            {{ form.objective_equation_str.label }}
+                                        </label>
+                                        <button type="button" id="helpBtn" class="text-primary-600 hover:text-primary-700 text-sm font-medium flex items-center gap-1">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                            Aide
+                                        </button>
+                                    </div>
+                                    <div id="helpContent" class="hidden mb-2 p-3 bg-primary-50 border border-primary-200 rounded-lg text-sm text-primary-700">
+                                        <p class="font-semibold mb-2">Format de la fonction objectif :</p>
+                                        <p>Entrez l'équation de la fonction objectif en utilisant x1, x2, etc. pour les variables.</p>
+                                        <p class="mt-1">Exemple : 3x1 + 5x2</p>
+                                        
+                                        <p class="font-semibold mt-4 mb-2">Format des contraintes :</p>
+                                        <p>Entrez une contrainte par ligne en utilisant x1, x2, etc. pour les variables.</p>
+                                        <p class="mt-1">Exemples :</p>
+                                        <ul class="list-disc list-inside mt-1">
+                                            <li>x1 + x2 <= 10</li>
+                                            <li>2x1 >= 5</li>
+                                        </ul>
+                                        <p class="mt-1">Opérateurs disponibles : <=, >=, =</p>
+                                    </div>
+                                    {{ form.objective_equation_str|add_class:"shadow appearance-none border rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" }}
+                                    {% for error in form.objective_equation_str.errors %}
+                                        <p class="text-red-500 text-xs italic mt-1">{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+
+                                <!-- Contraintes -->
+                                <div>
+                                    <label class="block text-gray-700 text-sm font-bold mb-2">
+                                        Contraintes
+                                    </label>
+                                    
+                                    <!-- Liste des contraintes -->
+                                    <div id="constraintsList" class="space-y-3 mb-4">
+                                        <!-- Les contraintes seront ajoutées ici dynamiquement -->
+                                    </div>
+
+                                    <!-- Formulaire pour ajouter une nouvelle contrainte -->
+                                    <div class="bg-white p-4 rounded-lg border border-gray-200">
+                                        <div class="flex items-center space-x-2">
+                                            <input type="text" 
+                                                   id="constraintExpression" 
+                                                   placeholder="Expression (ex: 3x₁ - 2x₂)" 
+                                                   class="flex-1 shadow appearance-none border rounded-lg py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 math-expression">
+                                            
+                                            <select id="constraintOperator" 
+                                                    class="shadow appearance-none border rounded-lg py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 math-operator">
+                                                <option value="<=">≤</option>
+                                                <option value=">=">≥</option>
+                                                <option value="=">=</option>
+                                            </select>
+                                            
+                                            <input type="text" 
+                                                   id="constraintRHS" 
+                                                   placeholder="Val (ex: 10)" 
+                                                   class="w-24 shadow appearance-none border rounded-lg py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                                            
+                                            <button type="button" 
+                                                    id="addConstraintBtn"
+                                                    class="bg-primary-600 hover:bg-primary-700 text-white font-medium py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-all">
+                                                Ajouter
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <!-- Champ caché pour stocker toutes les contraintes -->
+                                    <input type="hidden" 
+                                           name="constraints_equation_str" 
+                                           id="constraintsInput" 
+                                           value="">
+                                    
+                                    {% for error in form.constraints_equation_str.errors %}
+                                        <p class="text-red-500 text-xs italic mt-1">{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+
+                                {% if form.non_field_errors %}
+                                    <div class="p-4 bg-red-100 text-red-800 rounded-lg">
+                                        {% for error in form.non_field_errors %}
+                                            <p>{{ error }}</p>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+
+                                <button type="submit" class="w-full bg-primary-600 hover:bg-primary-700 text-white font-bold py-3 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-all shadow-md hover:shadow-lg">
+                                    Sauvegarder le problème
+                                </button>
+                            </form>
+                        </div>
                     </div>
-                {% endfor %}
-                 {% for error in form.objective_type.errors %} <p class="text-red-500 text-xs italic">{{ error }}</p> {% endfor %}
-            </div>
-
-             <div class="mb-4">
-                 <label class="block text-gray-700 text-sm font-bold mb-2" for="{{ form.num_variables.id_for_label }}">
-                    {{ form.num_variables.label }}
-                </label>
-                {{ form.num_variables }}
-                 {% for error in form.num_variables.errors %} <p class="text-red-500 text-xs italic">{{ error }}</p> {% endfor %}
-            </div>
-
-             <div class="mb-4">
-                 <label class="block text-gray-700 text-sm font-bold mb-2" for="{{ form.objective_coefficients_str.id_for_label }}">
-                    {{ form.objective_coefficients_str.label }}
-                 </label>
-                 <p class="text-gray-600 text-xs italic mb-2">Exemple : 3, 5, 0</p>
-                {{ form.objective_coefficients_str }}
-                 {% for error in form.objective_coefficients_str.errors %} <p class="text-red-500 text-xs italic">{{ error }}</p> {% endfor %}
-            </div>
-
-            <div class="mb-6">
-                 <label class="block text-gray-700 text-sm font-bold mb-2" for="{{ form.constraints_str.id_for_label }}">
-                    {{ form.constraints_str.label }}
-                 </label>
-                 <p class="text-gray-600 text-xs italic mb-2">Exemple (une contrainte par ligne) :<br>1,1;<=;10<br>2,0;>=;5</p>
-                {{ form.constraints_str }}
-                 {% for error in form.constraints_str.errors %} <p class="text-red-500 text-xs italic">{{ error }}</p> {% endfor %}
-            </div>
-
-
-            {% if form.non_field_errors %}
-                <div class="mb-4 p-2 bg-red-100 text-red-800 rounded">
-                    {% for error in form.non_field_errors %}
-                        <p>{{ error }}</p>
-                    {% endfor %}
+                    
+                    <div class="hidden md:block w-1/3 relative">
+                        <div class="aspect-square rounded-full bg-gradient-to-br from-primary-100 to-secondary-100 p-6 flex items-center justify-center shadow-lg">
+                            <div class="text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary-600 to-secondary-600">PL</div>
+                        </div>
+                        <div class="absolute -z-10 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-gradient-to-r from-primary-200 to-secondary-200 rounded-full blur-3xl opacity-20"></div>
+                    </div>
                 </div>
-            {% endif %}
+            </div>
+        </div>
+    </section>
+</div>
 
-            <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full">
-                Sauvegarder le problème
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Math&display=swap');
+
+    .math-expression {
+        font-family: 'Noto Sans Math', sans-serif;
+    }
+
+    .math-variable {
+        font-family: 'Noto Sans Math', sans-serif;
+        font-style: italic;
+        color: #4B5563;
+    }
+
+    .math-operator {
+        font-family: 'Noto Sans Math', sans-serif;
+        color: #6B7280;
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const helpBtn = document.getElementById('helpBtn');
+    const helpContent = document.getElementById('helpContent');
+    const constraintsList = document.getElementById('constraintsList');
+    const addConstraintBtn = document.getElementById('addConstraintBtn');
+    const constraintsInput = document.getElementById('constraintsInput');
+    const constraintExpression = document.getElementById('constraintExpression');
+    const constraintOperator = document.getElementById('constraintOperator');
+    const constraintRHS = document.getElementById('constraintRHS');
+    const numVariablesInput = document.querySelector('input[name="num_variables"]');
+    let detectedNumVariables = 0;
+
+    constraintExpression.value = '';
+    constraintRHS.value = '';
+    constraintsList.innerHTML = '';
+    constraintsInput.value = '';
+
+    const objectiveEquationInput = document.querySelector('input[name="objective_equation_str"]');
+    if (objectiveEquationInput) {
+        objectiveEquationInput.addEventListener('input', function() {
+            // Extraire toutes les variables du type x1, x2, x3...
+            const matches = this.value.match(/x\d+/g);
+            if (matches) {
+                // Déduire le max des indices trouvés (ex: x1, x2, x5 → 5)
+                const nums = matches.map(v => parseInt(v.substring(1)));
+                detectedNumVariables = Math.max(...nums);
+            } else {
+                detectedNumVariables = 0;
+            }
+            // Optionnel : afficher à l’utilisateur
+            // document.getElementById('numVarsInfo').textContent = detectedNumVariables > 0 ? `Variables détectées : x1 à x${detectedNumVariables}` : '';
+        });
+    }
+
+    if (helpBtn && helpContent) {
+        helpBtn.addEventListener('click', function() {
+            helpContent.classList.toggle('hidden');
+        });
+    }
+
+    // Fonction pour extraire les coefficients d'une expression
+    function extractCoefficients(expression, numVariables) {
+        const coefficients = new Array(numVariables).fill(0);
+        const terms = expression.split(/[+-]/).map(term => term.trim());
+        const signs = expression.match(/[+-]/g) || [];
+        
+        let currentIndex = 0;
+        terms.forEach((term, index) => {
+            if (term === '') return;
+            
+            // Gérer le signe
+            let sign = 1;
+            if (index > 0) {
+                sign = signs[index - 1] === '-' ? -1 : 1;
+            }
+            
+            // Extraire le coefficient et l'index de la variable
+            const match = term.match(/^(\d*\.?\d*)?x(\d+)$/);
+            if (match) {
+                const [_, coeff, varIndex] = match;
+                const coefficient = coeff === '' ? 1 : parseFloat(coeff);
+                const varNum = parseInt(varIndex);
+                
+                if (varNum > 0 && varNum <= numVariables) {
+                    coefficients[varNum - 1] = sign * coefficient;
+                }
+            }
+        });
+        
+        return coefficients;
+    }
+
+    // Fonction pour valider une contrainte
+    function validateConstraint(expression, operator, rhs, numVariables) {
+        // Vérifier que l'expression est valide
+        const expressionRegex = /^(\d*\.?\d*x\d+)(\s*[+-]\s*\d*\.?\d*x\d+)*$/;
+        if (!expressionRegex.test(expression)) {
+            alert('Format d\'expression invalide. Utilisez le format: 3x1 - 2x2');
+            return false;
+        }
+
+        // Vérifier que la valeur de droite est un nombre
+        if (isNaN(rhs) || rhs === '') {
+            alert('La valeur doit être un nombre.');
+            return false;
+        }
+
+        // Vérifier que les variables utilisées sont valides
+        const varRegex = /x(\d+)/g;
+        const variables = [...expression.matchAll(varRegex)].map(match => parseInt(match[1]));
+        if (variables.some(v => v > numVariables)) {
+            alert(`Les variables doivent être entre x1 et x${numVariables}`);
+            return false;
+        }
+
+        return true;
+    }
+
+    // Fonction pour formater l'expression avec des indices
+    function formatExpression(expression) {
+        return expression.replace(/x(\d+)/g, 'x<sub>$1</sub>');
+    }
+
+    // Fonction pour obtenir le nombre de variables
+    function getNumVariables() {
+        if (detectedNumVariables <= 0) {
+            alert("Veuillez d'abord saisir une fonction objectif valide (ex: 3x1 + 5x2).");
+            return null;
+        }
+        return detectedNumVariables;
+    }
+
+    // Fonction pour ajouter une contrainte à la liste
+    function addConstraint() {
+        const expression = constraintExpression.value.trim();
+        const operator = constraintOperator.value;
+        const rhs = constraintRHS.value.trim();
+        
+        const numVariables = getNumVariables();
+        if (numVariables === null) {
+            return;
+        }
+
+        if (!validateConstraint(expression, operator, rhs, numVariables)) {
+            return;
+        }
+
+        // Extraire les coefficients
+        const coefficients = extractCoefficients(expression, numVariables);
+
+        // Créer l'élément de contrainte
+        const constraintElement = document.createElement('div');
+        constraintElement.className = 'flex items-center justify-between bg-gray-50 p-3 rounded-lg';
+        constraintElement.innerHTML = `
+            <div class="flex items-center space-x-2">
+                <span class="text-gray-700 math-expression">${formatExpression(expression)}</span>
+                <span class="text-gray-700 math-operator">${operator}</span>
+                <span class="text-gray-700">${rhs}</span>
+            </div>
+            <button type="button" class="text-red-600 hover:text-red-700" onclick="this.parentElement.remove(); updateConstraintsInput();">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                </svg>
             </button>
-        </form>
-    </div>
+        `;
 
+        // Ajouter la contrainte à la liste
+        constraintsList.appendChild(constraintElement);
+
+        // Mettre à jour le champ caché
+        updateConstraintsInput();
+
+        // Réinitialiser les champs
+        constraintExpression.value = '';
+        constraintRHS.value = '';
+    }
+
+    // Fonction pour mettre à jour le champ caché avec toutes les contraintes
+    function updateConstraintsInput() {
+        const numVariables = getNumVariables();
+        if (numVariables === null) {
+            return;
+        }
+
+        const constraints = [];
+        constraintsList.querySelectorAll('div.flex.items-center.justify-between').forEach(div => {
+            const [expression, operator, rhs] = div.querySelector('div.flex.items-center.space-x-2').textContent.trim().split(/\s+/);
+            const coefficients = extractCoefficients(expression, numVariables);
+            constraints.push(`${coefficients.join(',')};${operator};${rhs}`);
+        });
+        constraintsInput.value = constraints.join('\n');
+    }
+
+    // Ajouter l'événement de clic sur le bouton
+    addConstraintBtn.addEventListener('click', addConstraint);
+
+    // Ajouter l'événement de validation lors de la soumission du formulaire
+    document.querySelector('form').addEventListener('submit', function(e) {
+        if (constraintsList.children.length === 0) {
+            e.preventDefault();
+            alert('Veuillez ajouter au moins une contrainte.');
+        }
+    });
+});
+</script>
 {% endblock %}
