@@ -1,0 +1,208 @@
+{% extends 'base.html' %}
+
+{% load problems_filters %}
+{% load problem_extras %}
+
+{% block title %}Détails du Problème - {{ problem.nom }}{% endblock %}
+
+{% block content %}
+<div class="bg-gray-50 min-h-screen py-12">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
+            <div class="bg-gradient-to-r from-primary-600 to-primary-800 py-6 px-6 flex justify-between items-center">
+                <h2 class="text-2xl font-bold text-white">{{ problem.nom }}</h2>
+                <a href="{% url 'create_manual_problem' %}" class="bg-white text-primary-600 hover:bg-primary-50 px-4 py-2 rounded-lg text-sm font-semibold transition-colors duration-200">
+                    <svg class="h-4 w-4 inline-block mr-1 -mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 15l-3-3m0 0l3-3m-3 3h8M3 12a9 9 0 1118 0 9 9 0 01-18 0z"></path></svg>
+                    Retour aux problèmes
+                </a>
+            </div>
+
+            <div class="p-8 space-y-8">
+                {% if messages %}
+                    <div class="mb-6 space-y-2">
+                        {% for message in messages %}
+                            <div class="p-4 rounded-lg flex items-start {% if message.tags == 'success' %}bg-green-50 text-green-800 border-l-4 border-green-500{% elif message.tags == 'error' %}bg-red-50 text-red-800 border-l-4 border-red-500{% elif message.tags == 'warning' %}bg-yellow-50 text-yellow-800 border-l-4 border-yellow-500{% endif %}">
+                                <div class="flex-shrink-0">
+                                    {% if message.tags == 'success' %}
+                                        <svg class="h-5 w-5 text-green-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+                                    {% elif message.tags == 'error' %}
+                                        <svg class="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path></svg>
+                                    {% elif message.tags == 'warning' %}
+                                        <svg class="h-5 w-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.542 2.705-1.542 3.47 0L17.618 13.06c.744 1.49-.291 3.239-1.928 3.239H4.31c-1.637 0-2.672-1.749-1.928-3.239L8.257 3.099zM10 10a1 1 0 00-1 1v2a1 1 0 102 0v-2a1 1 0 00-1-1zm0-4a1 1 0 00-1 1v1a1 1 0 102 0V7a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>
+                                    {% endif %}
+                                </div>
+                                <div class="ml-3">
+                                    <p class="text-sm font-medium">{{ message }}</p>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <div class="bg-gray-50 p-6 rounded-lg shadow-inner">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">Fonction Objectif</h3>
+                    <p class="text-gray-700">
+                        Type : <span class="font-medium text-primary-700">{{ problem.get_objective_type_display }}</span><br>
+                        Equation :
+                        <span class="font-mono bg-gray-200 px-2 py-1 rounded text-sm text-gray-800">
+                            {% if problem.objective_type == 'max' %}Max {% else %}Min {% endif %}
+                            {% for coeff in problem.objective_coefficients %}
+                                {% with forloop.counter0 as i %}
+                                    {% if coeff != 0 %}
+                                        {% if forloop.first or coeff < 0 %}{{ coeff|floatformat:"-2" }}{% else %}+ {{ coeff|floatformat:"-2" }}{% endif %}
+                                        {% if problem.variable_names and problem.variable_names|length > i %}
+                                            {{ problem.variable_names|index:i }}
+                                        {% else %}
+                                            x{{ forloop.counter }}
+                                        {% endif %}
+                                    {% endif %}
+                                {% endwith %}
+                            {% empty %}
+                                N/A
+                            {% endfor %}
+                        </span>
+                    </p>
+                </div>
+
+                <div class="bg-gray-50 p-6 rounded-lg shadow-inner">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">Contraintes</h3>
+                    <ul class="list-disc pl-5 space-y-2">
+                        {% for constraint in problem.constraints %}
+                            <li class="text-gray-700">
+                                <span class="font-mono bg-gray-200 px-2 py-1 rounded text-sm text-gray-800">
+                                {% for coeff in constraint.coefficients %}
+                                    {% with forloop.counter0 as i %}
+                                        {% if coeff != 0 %}
+                                            {% if forloop.first or coeff < 0 %}{{ coeff|floatformat:"-2" }}{% else %}+ {{ coeff|floatformat:"-2" }}{% endif %}
+                                            {% if problem.variable_names and problem.variable_names|length > i %}
+                                                {{ problem.variable_names|index:i }}
+                                            {% else %}
+                                                x{{ forloop.counter }}
+                                            {% endif %}
+                                        {% endif %}
+                                    {% endwith %}
+                                {% endfor %}
+                                {{ constraint.sense }} {{ constraint.rhs|floatformat:"-2" }}
+                                </span>
+                            </li>
+                        {% empty %}
+                            <li class="text-gray-700">Aucune contrainte définie.</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+
+                <div class="mt-8 text-center">
+                    {% if not problem.status %}
+                    <form action="{% url 'solve_problem' problem.pk %}" method="post" class="inline-block">
+                        {% csrf_token %}
+                        <button type="submit" class="bg-primary-600 hover:bg-primary-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 flex items-center justify-center">
+                            <svg class="h-6 w-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.002 12.002 0 002.944 12c.005 3.398 1.488 6.444 3.821 8.397L12 21.056l5.235-1.659A12.002 12.002 0 0021.056 12c.002-3.398-1.48-6.447-3.812-8.397z"></path></svg>
+                            Résoudre le Problème
+                        </button>
+                    </form>
+                    {% else %}
+                        <div class="p-4 bg-blue-100 text-blue-800 rounded-lg shadow-md">
+                            <p class="font-semibold">Ce problème a déjà été résolu.</p>
+                            <p class="text-sm mt-1">Vous pouvez consulter les résultats ci-dessous.</p>
+                        </div>
+                    {% endif %}
+                </div>
+
+
+                {% if problem.status %}
+                <div class="bg-green-50 p-6 rounded-lg shadow-inner border border-green-200">
+                    <h3 class="text-xl font-semibold text-green-800 mb-4">Résultats de la Résolution</h3>
+                    <p class="text-gray-700 mb-2">
+                        Statut : <span class="font-medium text-green-700">{{ problem.status|capfirst }}</span>
+                    </p>
+                    {% if problem.status == 'optimal' %}
+                        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                            <h2 class="text-2xl font-bold text-gray-800 mb-4">Solution Optimale</h2>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <!-- Valeur optimale -->
+                                <div>
+                                    <h3 class="text-lg font-semibold text-gray-700 mb-2">Valeur optimale :</h3>
+                                    <p class="text-gray-600">{{ problem.optimal_value|floatformat:2 }}</p>
+                                </div>
+                                
+                                <!-- Valeurs des variables -->
+                                <div>
+                                    <h3 class="text-lg font-semibold text-gray-700 mb-2">Valeurs des variables :</h3>
+                                    <div class="space-y-2">
+                                        {% for var_name, value in problem.variable_names|zip:problem.solution_variables %}
+                                        <p class="text-gray-600">{{ var_name }} = <span class="font-semibold">{{ value|floatformat:2 }}</span></p>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% elif problem.status == 'unsupported' %}
+                        <p class="text-orange-700">Ce type de problème n'est pas encore supporté par le solveur Simplex actuel.</p>
+                        <p class="text-orange-700 text-sm">Exemples non supportés: minimisation avec des contraintes d'inégalité (<=), contraintes d'égalité, contraintes de >= dans un problème de maximisation, RHS négatif dans certaines configurations.</p>
+                    {% elif problem.status == 'infeasible' %}
+                        <p class="text-red-700">Le problème est infaisable (aucune solution ne satisfait toutes les contraintes).</p>
+                    {% elif problem.status == 'unbounded' %}
+                        <p class="text-red-700">Le problème est non borné (la fonction objectif peut être augmentée/diminuée indéfiniment).</p>
+                    {% elif problem.status == 'error' %}
+                        <p class="text-red-700">Une erreur est survenue lors de la résolution du problème.</p>
+                        <p class="text-red-700 text-sm">Veuillez vérifier la modélisation de votre problème.</p>
+                    {% endif %}
+                </div>
+
+                {% if problem.status == 'optimal' and problem.tableaus_history %}
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-4">Historique des tableaux</h2>
+                        
+                        {% for tableau in problem.tableaus_history %}
+                        <div class="mb-8">
+                            <h3 class="text-lg font-semibold text-gray-700 mb-2">Tableau {{ forloop.counter }}</h3>
+                            
+                            <!-- En-tête du tableau -->
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full bg-white border border-gray-300">
+                                    <thead>
+                                        <tr>
+                                            <th class="px-4 py-2 border-b border-r">Base</th>
+                                            {% for var_name in tableau.variable_names %}
+                                            <th class="px-4 py-2 border-b border-r">{{ var_name }}</th>
+                                            {% endfor %}
+                                            <th class="px-4 py-2 border-b">RHS</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for row in tableau.tableau %}
+                                        <tr>
+                                            <td class="px-4 py-2 border-b border-r">
+                                                {% with base_index=tableau.basis_vars|index:forloop.counter0 %}
+                                                    {% if base_index is not None %}
+                                                        {{ tableau.variable_names|index:base_index }}
+                                                    {% else %}
+                                                        Z
+                                                    {% endif %}
+                                                {% endwith %}
+                                            </td>
+                                            {% for value in row %}
+                                            <td class="px-4 py-2 border-b border-r">{{ value|floatformat:2 }}</td>
+                                            {% endfor %}
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Vous pouvez ajouter du JavaScript spécifique à cette page ici si nécessaire
+</script>
+{% endblock %}

@@ -32,14 +32,11 @@ class ManualProblemForm(forms.ModelForm):
 
     class Meta:
         model = Problem
-        # Listez les champs du formulaire. Excluez num_variables.
-        fields = ['nom', 'description', 'objective_type', 'objective_equation_str', 'constraints_equation_str']
-        # Vous devrez peut-être définir des widgets ou d'autres options ici si nécessaire
+        fields = ['nom', 'objective_type', 'objective_equation_str', 'constraints_equation_str']
         widgets = {
-            'objective_type': forms.RadioSelect(
-                attrs={'class': 'focus:ring-primary-500 h-4 w-4 text-primary-600 border-gray-300'},
-                choices=Problem.OBJECTIVE_CHOICES
-            ),
+            'nom': forms.TextInput(attrs={'class': 'form-control'}),
+            'objective_type': forms.RadioSelect(),
+            'objective_equation_str': forms.TextInput(attrs={'class': 'form-control'}),
         }
 
     def clean_objective_type(self):

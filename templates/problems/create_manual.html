@@ -2,101 +2,69 @@
 
 {% block title %}Saisie Manuelle - Linéaris{% endblock %}
 
-{# Assurez-vous que le chargement du filtre custom_filters est présent si vous l'utilisez #}
 {% load custom_filters %}
 
 {% block content %}
 <div class="max-w-7xl mx-auto">
-    <!-- Hero Section -->
     <section class="py-12 md:py-16">
         <div class="bg-white rounded-2xl shadow-md overflow-hidden">
             <div class="p-8 md:p-12">
                 <div class="flex flex-col md:flex-row items-center justify-between gap-8">
                     <div class="space-y-6 max-w-2xl w-full">
                         <h1 class="text-3xl md:text-4xl font-bold text-gray-900">
-                            Créer un <span class="text-primary-600">Problème</span>
+                            Créer un <span class="text-primary-600">Problème PL</span>
                         </h1>
                         
                         <div class="bg-slate-50 border border-gray-200 p-6 rounded-xl">
-                            {% if messages %}
-                                <ul class="mb-4 space-y-2">
-                                    {% for message in messages %}
-                                        <li class="p-3 rounded-md {% if message.tags == 'success' %}bg-green-100 text-green-800{% elif message.tags == 'error' %}bg-red-100 text-red-800{% elif message.tags == 'warning' %}bg-yellow-100 text-yellow-800{% else %}bg-blue-100 text-blue-800{% endif %}">
-                                            {{ message }}
-                                        </li>
-                                    {% endfor %}
-                                </ul>
-                            {% endif %}
-
                             <form method="post" class="space-y-6" autocomplete="off">
                                 {% csrf_token %}
 
                                 <!-- Nom du problème -->
                                 <div>
-                                    <label class="block text-gray-700 text-sm font-bold mb-2" for="{{ form.nom.id_for_label }}">
-                                        {{ form.nom.label }}
+                                    <label class="block text-gray-700 text-sm font-bold mb-2">
+                                        Nom du problème
                                     </label>
-                                    {{ form.nom|add_class:"shadow appearance-none border rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" }}
-                                    {% for error in form.nom.errors %}
-                                        <p class="text-red-500 text-xs italic mt-1">{{ error }}</p>
-                                    {% endfor %}
-                                </div>
-
-                                <!-- Description -->
-                                <div>
-                                    <label class="block text-gray-700 text-sm font-bold mb-2" for="{{ form.description.id_for_label }}">
-                                        {{ form.description.label }}
-                                    </label>
-                                    {{ form.description|add_class:"shadow appearance-none border rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 h-24 resize-y" }}
-                                    {% for error in form.description.errors %}
-                                        <p class="text-red-500 text-xs italic mt-1">{{ error }}</p>
-                                    {% endfor %}
+                                    <input type="text" name="nom" class="shadow appearance-none border rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" placeholder="Ex: Optimisation de production">
                                 </div>
 
                                 <!-- Type d'objectif -->
                                 <div>
                                     <label class="block text-gray-700 text-sm font-bold mb-2">
-                                        {{ form.objective_type.label }}
+                                        Type d'optimisation
                                     </label>
                                     <div class="flex items-center space-x-6">
-                                        {{ form.objective_type }}
+                                        <label class="inline-flex items-center">
+                                            <input type="radio" name="objective_type" value="max" checked class="text-primary-600 focus:ring-primary-500">
+                                            <span class="ml-2">Maximisation</span>
+                                        </label>
+                                        <label class="inline-flex items-center">
+                                            <input type="radio" name="objective_type" value="min" class="text-primary-600 focus:ring-primary-500">
+                                            <span class="ml-2">Minimisation</span>
+                                        </label>
                                     </div>
-                                    {% for error in form.objective_type.errors %}
-                                        <p class="text-red-500 text-xs italic mt-1">{{ error }}</p>
-                                    {% endfor %}
+                                </div>
+
+                                <!-- Nombre de variables -->
+                                <div>
+                                    <label class="block text-gray-700 text-sm font-bold mb-2">
+                                        Nombre de variables
+                                    </label>
+                                    <select id="nbVariables" class="shadow appearance-none border rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                                        <option value="2">2 variables (x₁, x₂)</option>
+                                        <option value="3">3 variables (x₁, x₂, x₃)</option>
+                                        <option value="4">4 variables (x₁, x₂, x₃, x₄)</option>
+                                        <option value="5">5 variables</option>
+                                    </select>
                                 </div>
 
                                 <!-- Fonction objectif -->
                                 <div>
-                                    <div class="flex justify-between items-center mb-2">
-                                        <label class="block text-gray-700 text-sm font-bold" for="{{ form.objective_equation_str.id_for_label }}">
-                                            {{ form.objective_equation_str.label }}
-                                        </label>
-                                        <button type="button" id="helpBtn" class="text-primary-600 hover:text-primary-700 text-sm font-medium flex items-center gap-1">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                            </svg>
-                                            Aide
-                                        </button>
+                                    <label class="block text-gray-700 text-sm font-bold mb-2">
+                                        Fonction objectif
+                                    </label>
+                                    <div id="objectiveFunction" class="flex items-center flex-wrap gap-2">
+                                        <!-- Généré dynamiquement -->
                                     </div>
-                                    <div id="helpContent" class="hidden mb-2 p-3 bg-primary-50 border border-primary-200 rounded-lg text-sm text-primary-700">
-                                        <p class="font-semibold mb-2">Format de la fonction objectif :</p>
-                                        <p>Entrez l'équation de la fonction objectif en utilisant x1, x2, etc. pour les variables.</p>
-                                        <p class="mt-1">Exemple : 3x1 + 5x2</p>
-                                        
-                                        <p class="font-semibold mt-4 mb-2">Format des contraintes :</p>
-                                        <p>Entrez une contrainte par ligne en utilisant x1, x2, etc. pour les variables.</p>
-                                        <p class="mt-1">Exemples :</p>
-                                        <ul class="list-disc list-inside mt-1">
-                                            <li>x1 + x2 <= 10</li>
-                                            <li>2x1 >= 5</li>
-                                        </ul>
-                                        <p class="mt-1">Opérateurs disponibles : <=, >=, =</p>
-                                    </div>
-                                    {{ form.objective_equation_str|add_class:"shadow appearance-none border rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" }}
-                                    {% for error in form.objective_equation_str.errors %}
-                                        <p class="text-red-500 text-xs italic mt-1">{{ error }}</p>
-                                    {% endfor %}
                                 </div>
 
                                 <!-- Contraintes -->
@@ -104,58 +72,36 @@
                                     <label class="block text-gray-700 text-sm font-bold mb-2">
                                         Contraintes
                                     </label>
-                                    
-                                    <!-- Liste des contraintes -->
-                                    <div id="constraintsList" class="space-y-3 mb-4">
-                                        <!-- Les contraintes seront ajoutées ici dynamiquement -->
-                                    </div>
-
-                                    <!-- Formulaire pour ajouter une nouvelle contrainte -->
-                                    <div class="bg-white p-4 rounded-lg border border-gray-200">
-                                        <div class="flex items-center space-x-2">
-                                            <input type="text" 
-                                                   id="constraintExpression" 
-                                                   placeholder="Expression (ex: 3x₁ - 2x₂)" 
-                                                   class="flex-1 shadow appearance-none border rounded-lg py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 math-expression">
-                                            
-                                            <select id="constraintOperator" 
-                                                    class="shadow appearance-none border rounded-lg py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 math-operator">
-                                                <option value="<=">≤</option>
-                                                <option value=">=">≥</option>
-                                                <option value="=">=</option>
-                                            </select>
-                                            
-                                            <input type="text" 
-                                                   id="constraintRHS" 
-                                                   placeholder="Val (ex: 10)" 
-                                                   class="w-24 shadow appearance-none border rounded-lg py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
-                                            
-                                            <button type="button" 
-                                                    id="addConstraintBtn"
-                                                    class="bg-primary-600 hover:bg-primary-700 text-white font-medium py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-all">
-                                                Ajouter
-                                            </button>
+                                    <div id="constraintsContainer" class="space-y-4">
+                                        <!-- Contrainte par défaut -->
+                                        <div class="constraint-item bg-white p-4 rounded-lg border border-gray-200">
+                                            <div class="flex flex-col sm:flex-row gap-2 items-start sm:items-center">
+                                                <div class="flex-1 flex flex-wrap items-center gap-2">
+                                                    <!-- Généré dynamiquement -->
+                                                </div>
+                                                <div class="flex items-center gap-2">
+                                                    <select class="constraint-operator shadow appearance-none border rounded-lg py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                                                        <option value="<=">≤</option>
+                                                        <option value=">=">≥</option>
+                                                        <option value="=">=</option>
+                                                    </select>
+                                                    <input type="number" step="0.01" class="constraint-rhs w-20 shadow appearance-none border rounded-lg py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" placeholder="0">
+                                                    <button type="button" class="remove-constraint text-red-600 hover:text-red-700">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                                        </svg>
+                                                    </button>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
-
-                                    <!-- Champ caché pour stocker toutes les contraintes -->
-                                    <input type="hidden" 
-                                           name="constraints_equation_str" 
-                                           id="constraintsInput" 
-                                           value="">
-                                    
-                                    {% for error in form.constraints_equation_str.errors %}
-                                        <p class="text-red-500 text-xs italic mt-1">{{ error }}</p>
-                                    {% endfor %}
+                                    <button type="button" id="addConstraintBtn" class="mt-2 bg-primary-100 hover:bg-primary-200 text-primary-700 font-medium py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-all">
+                                        + Ajouter une contrainte
+                                    </button>
                                 </div>
 
-                                {% if form.non_field_errors %}
-                                    <div class="p-4 bg-red-100 text-red-800 rounded-lg">
-                                        {% for error in form.non_field_errors %}
-                                            <p>{{ error }}</p>
-                                        {% endfor %}
-                                    </div>
-                                {% endif %}
+                                <input type="hidden" name="objective_equation_str" id="objectiveInput">
+                                <input type="hidden" name="constraints_equation_str" id="constraintsInput">
 
                                 <button type="submit" class="w-full bg-primary-600 hover:bg-primary-700 text-white font-bold py-3 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-all shadow-md hover:shadow-lg">
                                     Sauvegarder le problème
@@ -164,11 +110,37 @@
                         </div>
                     </div>
                     
+                    <!-- Aide contextuelle -->
                     <div class="hidden md:block w-1/3 relative">
-                        <div class="aspect-square rounded-full bg-gradient-to-br from-primary-100 to-secondary-100 p-6 flex items-center justify-center shadow-lg">
-                            <div class="text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary-600 to-secondary-600">PL</div>
+                        <div class="sticky top-4 space-y-6">
+                            <div class="bg-primary-50 border border-primary-200 rounded-xl p-6">
+                                <h3 class="font-bold text-lg text-primary-800 mb-3">Comment utiliser</h3>
+                                <ul class="space-y-3 text-sm text-primary-700">
+                                    <li class="flex items-start gap-2">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary-500 mt-0.5 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                        </svg>
+                                        <span>Choisissez le nombre de variables nécessaires</span>
+                                    </li>
+                                    <li class="flex items-start gap-2">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary-500 mt-0.5 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                        </svg>
+                                        <span>Renseignez les coefficients dans la fonction objectif</span>
+                                    </li>
+                                    <li class="flex items-start gap-2">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary-500 mt-0.5 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                        </svg>
+                                        <span>Ajoutez autant de contraintes que nécessaire</span>
+                                    </li>
+                                </ul>
+                            </div>
+                            
+                            <div class="aspect-square rounded-full bg-gradient-to-br from-primary-100 to-secondary-100 p-6 flex items-center justify-center shadow-lg">
+                                <div class="text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary-600 to-secondary-600">PL</div>
+                            </div>
                         </div>
-                        <div class="absolute -z-10 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-gradient-to-r from-primary-200 to-secondary-200 rounded-full blur-3xl opacity-20"></div>
                     </div>
                 </div>
             </div>
@@ -176,208 +148,173 @@
     </section>
 </div>
 
-<style>
-    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Math&display=swap');
-
-    .math-expression {
-        font-family: 'Noto Sans Math', sans-serif;
-    }
-
-    .math-variable {
-        font-family: 'Noto Sans Math', sans-serif;
-        font-style: italic;
-        color: #4B5563;
-    }
-
-    .math-operator {
-        font-family: 'Noto Sans Math', sans-serif;
-        color: #6B7280;
-    }
-</style>
-
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const helpBtn = document.getElementById('helpBtn');
-    const helpContent = document.getElementById('helpContent');
-    const constraintsList = document.getElementById('constraintsList');
+    // Variables globales
+    let nbVariables = 2;
+    const variables = [];
+    
+    // Éléments DOM
+    const nbVariablesSelect = document.getElementById('nbVariables');
+    const objectiveFunctionDiv = document.getElementById('objectiveFunction');
+    const constraintsContainer = document.getElementById('constraintsContainer');
     const addConstraintBtn = document.getElementById('addConstraintBtn');
+    const objectiveInput = document.getElementById('objectiveInput');
     const constraintsInput = document.getElementById('constraintsInput');
-    const constraintExpression = document.getElementById('constraintExpression');
-    const constraintOperator = document.getElementById('constraintOperator');
-    const constraintRHS = document.getElementById('constraintRHS');
-    const numVariablesInput = document.querySelector('input[name="num_variables"]');
-    let detectedNumVariables = 0;
 
-    constraintExpression.value = '';
-    constraintRHS.value = '';
-    constraintsList.innerHTML = '';
-    constraintsInput.value = '';
+    // Initialisation
+    updateVariables();
+    
+    // Écouteurs d'événements
+    nbVariablesSelect.addEventListener('change', function() {
+        nbVariables = parseInt(this.value);
+        updateVariables();
+    });
 
-    const objectiveEquationInput = document.querySelector('input[name="objective_equation_str"]');
-    if (objectiveEquationInput) {
-        objectiveEquationInput.addEventListener('input', function() {
-            // Extraire toutes les variables du type x1, x2, x3...
-            const matches = this.value.match(/x\d+/g);
-            if (matches) {
-                // Déduire le max des indices trouvés (ex: x1, x2, x5 → 5)
-                const nums = matches.map(v => parseInt(v.substring(1)));
-                detectedNumVariables = Math.max(...nums);
-            } else {
-                detectedNumVariables = 0;
-            }
-            // Optionnel : afficher à l’utilisateur
-            // document.getElementById('numVarsInfo').textContent = detectedNumVariables > 0 ? `Variables détectées : x1 à x${detectedNumVariables}` : '';
-        });
-    }
+    addConstraintBtn.addEventListener('click', addConstraint);
 
-    if (helpBtn && helpContent) {
-        helpBtn.addEventListener('click', function() {
-            helpContent.classList.toggle('hidden');
-        });
-    }
-
-    // Fonction pour extraire les coefficients d'une expression
-    function extractCoefficients(expression, numVariables) {
-        const coefficients = new Array(numVariables).fill(0);
-        const terms = expression.split(/[+-]/).map(term => term.trim());
-        const signs = expression.match(/[+-]/g) || [];
+    // Fonctions principales
+    function updateVariables() {
+        variables.length = 0;
+        for (let i = 1; i <= nbVariables; i++) {
+            variables.push(`x${i}`);
+        }
         
-        let currentIndex = 0;
-        terms.forEach((term, index) => {
-            if (term === '') return;
+        updateObjectiveFunction();
+        updateConstraints();
+    }
+
+    function updateObjectiveFunction() {
+        objectiveFunctionDiv.innerHTML = '';
+        
+        variables.forEach((varName, index) => {
+            // Coefficient
+            const coeffInput = document.createElement('input');
+            coeffInput.type = 'number';
+            coeffInput.step = '0.01';
+            coeffInput.className = 'coeff-input w-16 shadow appearance-none border rounded-lg py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500';
+            coeffInput.placeholder = '0';
+            coeffInput.dataset.var = varName;
             
-            // Gérer le signe
-            let sign = 1;
+            // Variable
+            const varSpan = document.createElement('span');
+            varSpan.className = 'text-gray-700';
+            varSpan.textContent = varName;
+            
+            // Conteneur
+            const termDiv = document.createElement('div');
+            termDiv.className = 'flex items-center gap-1';
+            
             if (index > 0) {
-                sign = signs[index - 1] === '-' ? -1 : 1;
+                const signSpan = document.createElement('span');
+                signSpan.className = 'text-gray-700';
+                signSpan.textContent = '+';
+                termDiv.appendChild(signSpan);
             }
             
-            // Extraire le coefficient et l'index de la variable
-            const match = term.match(/^(\d*\.?\d*)?x(\d+)$/);
-            if (match) {
-                const [_, coeff, varIndex] = match;
-                const coefficient = coeff === '' ? 1 : parseFloat(coeff);
-                const varNum = parseInt(varIndex);
-                
-                if (varNum > 0 && varNum <= numVariables) {
-                    coefficients[varNum - 1] = sign * coefficient;
-                }
-            }
+            termDiv.appendChild(coeffInput);
+            termDiv.appendChild(varSpan);
+            objectiveFunctionDiv.appendChild(termDiv);
+        });
+    }
+
+    function addConstraint() {
+        const constraintDiv = document.createElement('div');
+        constraintDiv.className = 'constraint-item bg-white p-4 rounded-lg border border-gray-200';
+        constraintDiv.innerHTML = `
+            <div class="flex flex-col sm:flex-row gap-2 items-start sm:items-center">
+                <div class="flex-1 flex flex-wrap items-center gap-2 constraint-terms">
+                    ${generateConstraintTerms()}
+                </div>
+                <div class="flex items-center gap-2">
+                    <select class="constraint-operator shadow appearance-none border rounded-lg py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                        <option value="<=">≤</option>
+                        <option value=">=">≥</option>
+                        <option value="=">=</option>
+                    </select>
+                    <input type="number" step="0.01" class="constraint-rhs w-20 shadow appearance-none border rounded-lg py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" placeholder="0">
+                    <button type="button" class="remove-constraint text-red-600 hover:text-red-700">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        constraintsContainer.appendChild(constraintDiv);
+        
+        // Ajouter l'écouteur pour la suppression
+        constraintDiv.querySelector('.remove-constraint').addEventListener('click', function() {
+            constraintDiv.remove();
+            updateHiddenInputs();
         });
         
-        return coefficients;
+        // Mettre à jour les champs cachés
+        updateHiddenInputs();
     }
 
-    // Fonction pour valider une contrainte
-    function validateConstraint(expression, operator, rhs, numVariables) {
-        // Vérifier que l'expression est valide
-        const expressionRegex = /^(\d*\.?\d*x\d+)(\s*[+-]\s*\d*\.?\d*x\d+)*$/;
-        if (!expressionRegex.test(expression)) {
-            alert('Format d\'expression invalide. Utilisez le format: 3x1 - 2x2');
-            return false;
-        }
-
-        // Vérifier que la valeur de droite est un nombre
-        if (isNaN(rhs) || rhs === '') {
-            alert('La valeur doit être un nombre.');
-            return false;
-        }
-
-        // Vérifier que les variables utilisées sont valides
-        const varRegex = /x(\d+)/g;
-        const variables = [...expression.matchAll(varRegex)].map(match => parseInt(match[1]));
-        if (variables.some(v => v > numVariables)) {
-            alert(`Les variables doivent être entre x1 et x${numVariables}`);
-            return false;
-        }
-
-        return true;
+    function generateConstraintTerms() {
+        let html = '';
+        variables.forEach((varName, index) => {
+            html += `
+                <div class="flex items-center gap-1">
+                    ${index > 0 ? '<span class="text-gray-700">+</span>' : ''}
+                    <input type="number" step="0.01" class="coeff-input w-16 shadow appearance-none border rounded-lg py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" placeholder="0" data-var="${varName}">
+                    <span class="text-gray-700">${varName}</span>
+                </div>
+            `;
+        });
+        return html;
     }
 
-    // Fonction pour formater l'expression avec des indices
-    function formatExpression(expression) {
-        return expression.replace(/x(\d+)/g, 'x<sub>$1</sub>');
-    }
-
-    // Fonction pour obtenir le nombre de variables
-    function getNumVariables() {
-        if (detectedNumVariables <= 0) {
-            alert("Veuillez d'abord saisir une fonction objectif valide (ex: 3x1 + 5x2).");
-            return null;
-        }
-        return detectedNumVariables;
-    }
-
-    // Fonction pour ajouter une contrainte à la liste
-    function addConstraint() {
-        const expression = constraintExpression.value.trim();
-        const operator = constraintOperator.value;
-        const rhs = constraintRHS.value.trim();
+    function updateConstraints() {
+        // Supprimer toutes les contraintes existantes
+        constraintsContainer.innerHTML = '';
         
-        const numVariables = getNumVariables();
-        if (numVariables === null) {
-            return;
-        }
-
-        if (!validateConstraint(expression, operator, rhs, numVariables)) {
-            return;
-        }
-
-        // Extraire les coefficients
-        const coefficients = extractCoefficients(expression, numVariables);
-
-        // Créer l'élément de contrainte
-        const constraintElement = document.createElement('div');
-        constraintElement.className = 'flex items-center justify-between bg-gray-50 p-3 rounded-lg';
-        constraintElement.innerHTML = `
-            <div class="flex items-center space-x-2">
-                <span class="text-gray-700 math-expression">${formatExpression(expression)}</span>
-                <span class="text-gray-700 math-operator">${operator}</span>
-                <span class="text-gray-700">${rhs}</span>
-            </div>
-            <button type="button" class="text-red-600 hover:text-red-700" onclick="this.parentElement.remove(); updateConstraintsInput();">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
-                </svg>
-            </button>
-        `;
-
-        // Ajouter la contrainte à la liste
-        constraintsList.appendChild(constraintElement);
-
-        // Mettre à jour le champ caché
-        updateConstraintsInput();
-
-        // Réinitialiser les champs
-        constraintExpression.value = '';
-        constraintRHS.value = '';
+        // Ajouter une contrainte par défaut
+        addConstraint();
     }
 
-    // Fonction pour mettre à jour le champ caché avec toutes les contraintes
-    function updateConstraintsInput() {
-        const numVariables = getNumVariables();
-        if (numVariables === null) {
-            return;
-        }
-
+    function updateHiddenInputs() {
+        // Fonction objectif
+        const objectiveTerms = [];
+        document.querySelectorAll('#objectiveFunction .coeff-input').forEach(input => {
+            const coeff = input.value || '0';
+            const varName = input.dataset.var;
+            objectiveTerms.push(`${coeff}${varName}`);
+        });
+        objectiveInput.value = objectiveTerms.join(' + ');
+        
+        // Contraintes
         const constraints = [];
-        constraintsList.querySelectorAll('div.flex.items-center.justify-between').forEach(div => {
-            const [expression, operator, rhs] = div.querySelector('div.flex.items-center.space-x-2').textContent.trim().split(/\s+/);
-            const coefficients = extractCoefficients(expression, numVariables);
-            constraints.push(`${coefficients.join(',')};${operator};${rhs}`);
+        document.querySelectorAll('.constraint-item').forEach(item => {
+            const terms = [];
+            item.querySelectorAll('.coeff-input').forEach(input => {
+                const coeff = input.value || '0';
+                const varName = input.dataset.var;
+                terms.push(`${coeff}${varName}`);
+            });
+            
+            const operator = item.querySelector('.constraint-operator').value;
+            const rhs = item.querySelector('.constraint-rhs').value || '0';
+            
+            constraints.push(`${terms.join(' + ')} ${operator} ${rhs}`);
         });
         constraintsInput.value = constraints.join('\n');
     }
 
-    // Ajouter l'événement de clic sur le bouton
-    addConstraintBtn.addEventListener('click', addConstraint);
-
-    // Ajouter l'événement de validation lors de la soumission du formulaire
-    document.querySelector('form').addEventListener('submit', function(e) {
-        if (constraintsList.children.length === 0) {
-            e.preventDefault();
-            alert('Veuillez ajouter au moins une contrainte.');
+    // Écouteurs pour la mise à jour automatique
+    document.addEventListener('input', function(e) {
+        if (e.target.classList.contains('coeff-input') || 
+            e.target.classList.contains('constraint-operator') || 
+            e.target.classList.contains('constraint-rhs')) {
+            updateHiddenInputs();
         }
+    });
+
+    document.querySelector('form').addEventListener('submit', function (e) {
+        updateHiddenInputs(); // S'assure que les hidden inputs sont bien remplis
     });
 });
 </script>
