@@ -11,7 +11,7 @@ from django.utils import timezone
 
 from .forms import ManualProblemForm
 from .models import Problem, ImportedProblem
-from solver.simplex import SimplexSolver, STATUS_UNSUPPORTED
+from problems.simplex import SimplexSolver, STATUS_UNSUPPORTED
 
 @login_required
 def create_manual_problem(request):

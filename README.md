@@ -1,38 +1,123 @@
-# Linéaris
+# Linéaris - Solveur de Programmation Linéaire Intelligente
 
-## Résolvez vos Problèmes de Programmation Linéaire Simplement
+![Bannière Linéaris](img/dashboard.png)
 
-![Logo Linéaris (Placeholder - à créer)](docs/img/linearis_logo_placeholder.png)
+## 🎯 Objectif
+Outil éducatif pour résoudre des problèmes de programmation linéaire (PL), conçu pour :
+- **Étudiants** : Apprendre le Simplexe via des itérations visualisées  
+- **Enseignants** : Créer des exemples pédagogiques  
+- **Chercheurs** : Prototyper rapidement des modèles d'optimisation  
 
-Linéaris est une application web conçue pour aider les étudiants, les enseignants et les professionnels à modéliser et résoudre des problèmes de Programmation Linéaire (PL). Que vous préfériez la saisie manuelle de vos équations ou l'import d'énoncés via PDF/image pour une analyse assistée par IA, Linéaris simplifie le processus de résolution grâce à l'algorithme du Simplexe et à une visualisation graphique pour les problèmes à deux variables.
+## ✨ Fonctionnalités Actuelles
+| Fonctionnalité | Description |
+|----------------|-------------|
+| **Saisie Manuelle** | Interface équations avec validation en temps réel 
+| **Import IA** | Extraction de PL depuis PDF/images via Gemini |
+| **Résolution Simplexe** | Historique complet des tableaux d'itérations |
+| **Gestion des Problèmes** | Sauvegarde/chargement dans l'espace utilisateur |
 
-Ce projet est en cours de développement actif.
+## 🛠️ Stack Technique
+```python
+# Core Stack
+Django 4.2         # Framework web
+Gemini 1.5 Flash   # Extraction IA des équations
+NumPy 2.0          # Calculs matriciels pour Simplexe
+PyPDF2/Pillow      # Traitement PDF/images
 
-## Fonctionnalités Clés (Planifiées)
+# Modèles Clés (models.py)
+Problem            # Stocke les données PL complètes
+ImportedProblem    # Gère les problèmes importés (+métadonnées)
+```
 
-* **Saisie Manuelle :** Interface intuitive pour entrer directement la fonction objectif et les contraintes.
-* **Import Intelligent :** Téléversement de PDF ou d'images contenant un énoncé de problème PL.
-* **Analyse IA :** Utilisation de l'OCR et d'une API de Grand Modèle de Langage (LLM) pour extraire automatiquement la fonction objectif et les contraintes du texte de l'énoncé, avec validation manuelle.
-* **Résolution Simplexe :** Algorithme robuste pour trouver la solution optimale (ou identifier l'infaisabilité/non-borné).
-* **Affichage des Itérations :** Visualisation pas à pas des tableaux du Simplexe.
-* **Vue Graphique (2D) :** Représentation de la zone réalisable et du point optimal pour les problèmes à deux variables.
-* **Gestion des Utilisateurs :** Comptes personnels pour sauvegarder, organiser et accéder à l'historique de vos problèmes.
-* **Export :** Téléchargement des résultats (tableaux, graphique) au format PDF ou CSV.
-* **Partage :** Génération de liens publics pour partager vos problèmes et leurs solutions en lecture seule.
+## 🚀 Installation Rapide
 
-## Installation de Tesseract OCR pour Windows
+### 1. Cloner le dépôt
 
-1. Téléchargez l'installateur Tesseract depuis [UB Mannheim](https://github.com/UB-Mannheim/tesseract/wiki)
-2. Exécutez l'installateur
-3. Lors de l'installation :
-   - Sélectionnez "Additional language data (download)"
-   - Cochez "French" dans les langues
-   - Gardez le chemin d'installation par défaut : `C:\Program Files\Tesseract-OCR`
-4. Redémarrez votre application
+```bash
+git clone https://github.com/votre-repo/linearis.git
+cd linearis
+```
 
-## Vérification de l'installation
+### 2. Configurer l'environnement
 
-Pour vérifier que Tesseract est correctement installé :
-1. Ouvrez l'invite de commande (cmd)
-2. Tapez : `tesseract --version`
-3. Vous devriez voir la version de Tesseract s'afficher
+```bash
+python -m venv venv
+source venv/bin/activate  # Linux/Mac
+venv\Scripts\activate     # Windows
+```
+
+### 3. Installer les dépendances
+
+```bash
+pip install -r requirements.txt
+```
+### 4. Configurer Gemini (obtenir une clé API)
+
+```bash
+echo "GEMINI_API_KEY='votre_cle_api'" > .env
+```
+
+### 5. Lancer le serveur
+
+```bash
+python manage.py migrate
+python manage.py runserver
+```
+
+#### ➔ Accédez à http://localhost:8000
+
+
+## 📚 Workflows Clés
+
+### 1. Saisie Manuelle
+
+![workflow de la saisie manuelle](img/saisie-manuel.png)
+
+![Formulaire de cration de PL](img/formulaire-PL.png)
+
+### 2. Import IA
+
+![workflow de l'importation d'un problème](img/ImportedProblem.png)
+
+![Upload de fichier pour analyse IA](img/upload-for-AI.png)
+
+### 3. Visualisation de la solution optimal
+
+![Affichage des détails du problème](img/problem-detail.png)
+
+![Affichage des itérationns](img/iterations-table.png)
+
+## 🏗 Architecture du Projet
+
+```
+linearis/
+├── problems/          # Module cœur
+│   ├── services.py    # Intégration Gemini
+│   ├── simplex.py     # Implémentation Simplexe
+│   ├── models.py      # Modèles de données
+│   └── views.py       # Logique métier
+├── templates/         # Interfaces utilisateur
+│   ├── problems/      # Pages spécifiques PL
+│   └── users/         # Gestion de compte
+└── linearis_project/  # Configuration Django
+```
+
+## ⚠ Limitations Actuelles
+
+- **Simplexe** : Limité aux problèmes avec contraintes ≤ (max) ou ≥ (min)
+
+- **Visualisation** : Pas de graphique 2D (en développement)
+
+- **Performance** : Max ~5 variables/contraintes
+
+
+## 🤝 Contribution
+
+Les contributions sont bienvenues ! Étapes :
+
+1. Fork du dépôt
+
+2. Création d'une branche (feat/nouvelle-fonctionnalite)
+
+3. Soumettre une Pull Request
+

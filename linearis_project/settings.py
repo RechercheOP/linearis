@@ -51,10 +51,6 @@ INSTALLED_APPS = [
     # Mes applications
     'users.apps.UsersConfig',
     'problems.apps.ProblemsConfig',
-    'solver.apps.SolverConfig',
-    'ia_analysis.apps.IaAnalysisConfig',
-    'exports.apps.ExportsConfig',
-    'sharing.apps.SharingConfig',
 ]
 
 MIDDLEWARE = [
