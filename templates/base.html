@@ -47,137 +47,113 @@
     <style>
         /* Animation de gradient pour certains éléments */
         .gradient-animation {
+            background: linear-gradient(45deg, #3b82f6, #8b5cf6);
             background-size: 200% 200%;
             animation: gradient 5s ease infinite;
-            background-image: linear-gradient(45deg, #0ea5e9, #8b5cf6, #0ea5e9);
         }
         @keyframes gradient {
             0% { background-position: 0% 50%; }
             50% { background-position: 100% 50%; }
             100% { background-position: 0% 50%; }
         }
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 50;
+            backdrop-filter: blur(8px);
+            background-color: rgba(255, 255, 255, 0.9);
+        }
+        .content-wrapper {
+            margin-top: 4rem; /* Hauteur de la navbar */
+        }
+        .go-to-top {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        .go-to-top.visible {
+            opacity: 1;
+            visibility: visible;
+        }
     </style>
     {% block extra_head %}{% endblock %}
 </head>
-<body class="bg-slate-50 font-sans min-h-screen flex flex-col">
-    <!-- Navbar -->
-    <nav class="bg-white shadow-md">
-        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+<body class="bg-gray-50 min-h-screen">
+    <!-- Navbar fixe -->
+    <nav class="navbar border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
+                <!-- Logo à gauche -->
+                <div class="flex-shrink-0 flex items-center">
+                    <a href="{% url 'home' %}" class="text-2xl font-bold text-primary-600">Linéaris</a>
+                </div>
+
+                <!-- Liens centrés -->
+                <div class="flex-1 flex justify-center">
+                    <div class="hidden sm:flex sm:space-x-8">
+                        <a href="{% url 'home' %}" class="border-transparent text-gray-500 hover:border-primary-500 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                            Accueil
+                        </a>
+                        {% if user.is_authenticated %}
+                        <a href="{% url 'dashboard' %}" class="border-transparent text-gray-500 hover:border-primary-500 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                            Dashboard
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Boutons de connexion à droite -->
                 <div class="flex items-center">
-                    <a href="/" class="flex items-center">
-                        <span class="text-2xl font-bold text-primary-600">Linéaris</span>
-                    </a>
-                </div>
-                <div class="hidden sm:ml-6 sm:flex sm:items-center space-x-8">
-                    <a href="#" class="text-gray-600 hover:text-primary-600 px-3 py-2 text-sm font-medium transition-colors">Accueil</a>
-                    <a href="#" class="text-gray-600 hover:text-primary-600 px-3 py-2 text-sm font-medium transition-colors">Saisie Manuelle</a>
-                    <a href="#" class="text-gray-600 hover:text-primary-600 px-3 py-2 text-sm font-medium transition-colors">Import</a>
-                    <a href="#" class="text-gray-600 hover:text-primary-600 px-3 py-2 text-sm font-medium transition-colors">À propos</a>
-                </div>
-                <div class="hidden sm:ml-6 sm:flex sm:items-center space-x-4"> {# Ajout space-x-4 pour espacer les éléments #}
                     {% if user.is_authenticated %}
-                        <a href="{% url 'logout' %}" class="text-gray-600 hover:text-primary-600 px-3 py-2 text-sm font-medium transition-colors">
-                            Déconnexion
-                        </a>
+                    <div class="flex items-center space-x-4">
+                        <a href="{% url 'logout' %}" class="text-gray-500 hover:text-gray-700">Déconnexion</a>
+                    </div>
                     {% else %}
-                        <a href="{% url 'login' %}" class="text-gray-600 hover:text-primary-600 px-3 py-2 text-sm font-medium transition-colors">
-                            Connexion
-                        </a>
-                        <a href="{% url 'register' %}" class="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors">
-                            Inscription
-                        </a>
+                    <div class="flex items-center space-x-4">
+                        <a href="{% url 'login' %}" class="text-gray-500 hover:text-gray-700">Connexion</a>
+                        <a href="{% url 'register' %}" class="bg-primary-600 text-white px-4 py-2 rounded-md hover:bg-primary-700">Inscription</a>
+                    </div>
                     {% endif %}
-                </div>
-                <!-- Mobile menu button -->
-                <div class="flex items-center sm:hidden">
-                    <button type="button" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-primary-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary-500" aria-expanded="false">
-                        <span class="sr-only">Ouvrir le menu</span>
-                        <!-- Icon when menu is closed -->
-                        <svg class="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                        </svg>
-                    </button>
                 </div>
             </div>
         </div>
     </nav>
 
-    <!-- Mobile menu, show/hide based on menu state -->
-    <div class="sm:hidden hidden" id="mobile-menu">
-        <div class="px-2 pt-2 pb-3 space-y-1">
-            <a href="#" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-primary-600 hover:bg-gray-50">Accueil</a>
-            <a href="#" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-primary-600 hover:bg-gray-50">Saisie Manuelle</a>
-            <a href="#" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-primary-600 hover:bg-gray-50">Import</a>
-            <a href="#" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-primary-600 hover:bg-gray-50">À propos</a>
-
-            {% if user.is_authenticated %}
-                <a href="{% url 'logout' %}" class="block w-full text-center px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-primary-600 hover:bg-gray-50">
-                    Déconnexion
-                </a>
-            {% else %}
-                <a href="{% url 'login' %}" class="block w-full text-center px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-primary-600 hover:bg-gray-50">
-                    Connexion
-                </a>
-                <a href="{% url 'register' %}" class="block w-full text-center px-3 py-2 rounded-md text-base font-medium bg-primary-600 text-white hover:bg-primary-700">
-                    Inscription
-                </a>
-            {% endif %}
-        </div>
+    <!-- Contenu principal avec marge pour la navbar -->
+    <div class="content-wrapper">
+        {% block content %}{% endblock %}
     </div>
 
-    <!-- Page content -->
-    <main class="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        {% block content %}
-            {# Le contenu spécifique de chaque page #}
-        {% endblock %}
-    </main>
-
-    <!-- Footer -->
-    <footer class="bg-gray-800 text-white">
-        <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div>
-                    <h3 class="text-lg font-semibold mb-4">Linéaris</h3>
-                    <p class="text-gray-300 text-sm">Une application web pour résoudre simplement vos problèmes de programmation linéaire.</p>
-                </div>
-                <div>
-                    <h3 class="text-lg font-semibold mb-4">Liens Rapides</h3>
-                    <ul class="space-y-2 text-sm">
-                        <li><a href="#" class="text-gray-300 hover:text-white transition-colors">Accueil</a></li>
-                        <li><a href="#" class="text-gray-300 hover:text-white transition-colors">Saisie Manuelle</a></li>
-                        <li><a href="#" class="text-gray-300 hover:text-white transition-colors">Import</a></li>
-                        <li><a href="#" class="text-gray-300 hover:text-white transition-colors">À propos</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h3 class="text-lg font-semibold mb-4">Contact</h3>
-                    <p class="text-gray-300 text-sm">Des questions ou des suggestions ? N'hésitez pas à nous contacter.</p>
-                    <a href="#" class="inline-block mt-2 text-sm text-primary-300 hover:text-white transition-colors">support@linearis.app</a>
-                </div>
-            </div>
-            <div class="mt-8 pt-8 border-t border-gray-700 text-center text-sm text-gray-400">
-                <p>&copy; {% now "Y" %} Linéaris. Tous droits réservés.</p>
-            </div>
-        </div>
-    </footer>
-
-    <!-- Scripts -->
+    <!-- Bouton "Retour en haut" -->
+    <button id="goToTop" class="go-to-top bg-primary-600 text-white p-3 rounded-full shadow-lg hover:bg-primary-700 transition-colors">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+        </svg>
+    </button>
+    {% block extra_js %}{% endblock %}
     <script>
-        // Simple mobile menu toggle
-        document.addEventListener('DOMContentLoaded', function() {
-            const mobileMenuButton = document.querySelector('button[aria-expanded]');
-            const mobileMenu = document.getElementById('mobile-menu');
-            
-            if (mobileMenuButton && mobileMenu) {
-                mobileMenuButton.addEventListener('click', function() {
-                    const expanded = this.getAttribute('aria-expanded') === 'true';
-                    this.setAttribute('aria-expanded', !expanded);
-                    mobileMenu.classList.toggle('hidden');
-                });
+        // Gestion du bouton "Retour en haut"
+        const goToTopButton = document.getElementById('goToTop');
+        
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 300) {
+                goToTopButton.classList.add('visible');
+            } else {
+                goToTopButton.classList.remove('visible');
             }
         });
+
+        goToTopButton.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
     </script>
-    {% block extra_js %}{% endblock %}
 </body>
 </html>

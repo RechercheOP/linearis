@@ -20,7 +20,7 @@
                                     Bonjour, <span class="font-semibold text-primary-700">{{ user.username }}</span> !
                                 </p>
                                 <p class="mt-4">
-                                    <a href="#" class="gradient-animation inline-block text-white font-medium rounded-lg px-5 py-2.5 shadow-md hover:shadow-lg transition-shadow">
+                                    <a href="{% url 'dashboard' %}" class="gradient-animation inline-block text-white font-medium rounded-lg px-5 py-2.5 shadow-md hover:shadow-lg transition-shadow">
                                         Accéder à mon Dashboard
                                     </a>
                                     <a href="{% url 'create_manual_problem' %}" class="gradient-animation inline-block text-white font-medium rounded-lg px-5 py-2.5 shadow-md hover:shadow-lg transition-shadow">
@@ -109,7 +109,7 @@
                 </p>
                 <div class="flex flex-wrap justify-center gap-4">
                     <a href="#" class="bg-white text-primary-600 hover:bg-gray-100 font-medium rounded-lg px-6 py-3 shadow-md hover:shadow-lg transition-shadow">
-                        Commencer gratuitement
+                        Commencer
                     </a>
                     <a href="#" class="bg-transparent border border-white text-white hover:bg-white/10 font-medium rounded-lg px-6 py-3 transition-colors">
                         En savoir plus

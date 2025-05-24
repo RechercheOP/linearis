@@ -19,3 +19,20 @@ Ce projet est en cours de développement actif.
 * **Gestion des Utilisateurs :** Comptes personnels pour sauvegarder, organiser et accéder à l'historique de vos problèmes.
 * **Export :** Téléchargement des résultats (tableaux, graphique) au format PDF ou CSV.
 * **Partage :** Génération de liens publics pour partager vos problèmes et leurs solutions en lecture seule.
+
+## Installation de Tesseract OCR pour Windows
+
+1. Téléchargez l'installateur Tesseract depuis [UB Mannheim](https://github.com/UB-Mannheim/tesseract/wiki)
+2. Exécutez l'installateur
+3. Lors de l'installation :
+   - Sélectionnez "Additional language data (download)"
+   - Cochez "French" dans les langues
+   - Gardez le chemin d'installation par défaut : `C:\Program Files\Tesseract-OCR`
+4. Redémarrez votre application
+
+## Vérification de l'installation
+
+Pour vérifier que Tesseract est correctement installé :
+1. Ouvrez l'invite de commande (cmd)
+2. Tapez : `tesseract --version`
+3. Vous devriez voir la version de Tesseract s'afficher

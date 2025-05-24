@@ -5,9 +5,12 @@ from django.contrib import messages
 from django.db import transaction
 import json
 import re
+from django.http import JsonResponse
+from .services import GeminiService
+from django.utils import timezone
 
 from .forms import ManualProblemForm
-from .models import Problem
+from .models import Problem, ImportedProblem
 from solver.simplex import SimplexSolver, STATUS_UNSUPPORTED
 
 @login_required
@@ -204,3 +207,87 @@ def solve_problem(request, pk):
         messages.error(request, f'Erreur lors de la résolution : {str(e)}')
     
     return redirect('problem_detail', pk=problem.pk)
+
+import logging
+logger = logging.getLogger(__name__)
+
+@login_required
+def import_problem(request):
+    if request.method == 'POST' and request.FILES.get('file'):
+        file = request.FILES['file']
+        
+        # Vérification du type de fichier
+        allowed_types = ['application/pdf', 'image/png', 'image/jpeg', 'image/jpg']
+        if file.content_type not in allowed_types:
+            return JsonResponse({
+                'success': False,
+                'error': 'Format de fichier non supporté'
+            })
+        
+        try:
+            # Création du problème importé
+            problem = ImportedProblem.objects.create(
+                user=request.user,
+                file=file,
+                nom=f"Problème importé - {file.name}",
+                statusForImport='processing',
+                processing_started_at=timezone.now()
+            )
+            
+            # Traitement avec Gemini
+            gemini_service = GeminiService()
+            
+            if file.content_type.startswith('image/'):
+                result = gemini_service.process_image(file)
+            else:
+                result = gemini_service.process_pdf(file)
+            
+            print(result['objective_coefficients'])
+            
+            # Mise à jour du problème avec les résultats
+            problem.objective_type = result['objective_type']
+            problem.objective_coefficients = result['objective_coefficients']
+            problem.constraints = result['constraints']
+            
+            problem.num_variables = len(result['objective_coefficients'])
+            
+            # Assurer la cohérence des longueurs de coefficients dans les contraintes
+            for constraint in problem.constraints:
+                if len(constraint['coefficients']) < problem.num_variables:
+                    constraint['coefficients'].extend(
+                        [0.0] * (problem.num_variables - len(constraint['coefficients'])))
+                    
+            problem.variable_names = [f"x{i+1}" for i in range(problem.num_variables)]
+            
+            if 'objective_function' in result: # Si Gemini renvoie la chaîne de l'objectif
+                problem.objective_equation_str = result['objective_function']
+            if 'constraints_equations' in result: # Si Gemini renvoie la liste des chaînes des contraintes
+                problem.constraints_equation_str = "\n".join(result['constraints_equations'])
+                
+            problem.statusForImport = 'completed'
+            problem.processing_completed_at = timezone.now()
+            
+            problem.save()
+            
+            return JsonResponse({
+                'success': True,
+                'problem_id': problem.id
+            })
+            
+        except Exception as e:
+            logger.error(f"Erreur lors de l'importation : {str(e)}", exc_info=True)
+            if problem:
+                problem.statusForImport = 'failed'
+                problem.error_message = str(e)
+                problem.processing_completed_at = timezone.now() 
+                problem.save()
+            
+            return JsonResponse({
+                'success': False,
+                'error': f"Erreur interne du serveur : {str(e)}" # Message d'erreur plus générique à l'utilisateur
+            })
+    
+    return JsonResponse({
+        'success': False,
+        'error': 'Méthode non autorisée ou fichier manquant'
+    })

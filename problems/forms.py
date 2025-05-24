@@ -1,5 +1,5 @@
 from django import forms
-from .models import Problem
+from .models import Problem, ImportedProblem
 
 class ManualProblemForm(forms.ModelForm):
     # Renommer le champ de l'objectif pour refléter qu'il s'agit d'une équation
@@ -44,3 +44,13 @@ class ManualProblemForm(forms.ModelForm):
         if not objective_type:
             raise forms.ValidationError("Veuillez sélectionner un type d'objectif.")
         return objective_type
+
+class ProblemImportForm(forms.ModelForm):
+    class Meta:
+        model = ImportedProblem
+        fields = ['file']
+        widgets = {
+            'file': forms.FileInput(attrs={
+                'class': 'block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100'
+            })
+        }
