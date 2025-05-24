@@ -44,7 +44,19 @@ class Problem(models.Model):
     # --- Champs pour la résolution ---
     solution_variables = models.JSONField(blank=True, null=True) # Ex: [4.0, 4.0]
     optimal_value = models.FloatField(blank=True, null=True)     # Ex: 32.0
-    status = models.CharField(max_length=50, blank=True, null=True) # Ex: 'optimal', 'infeasible', 'unbounded', 'error', 'unsupported'
+    STATUS_CHOICES = [
+        ('optimal', 'Solution optimale trouvée'),
+        ('infeasible', 'Problème infaisable'),
+        ('unbounded', 'Problème non borné'),
+        ('error', 'Erreur lors de la résolution'),
+        ('unsupported', 'Type de problème non supporté'),
+        ('pending', 'En attente de résolution'),
+    ]
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default='pending'
+    )
     # Stocke tous les tableaux d'itérations, pour affichage pas à pas.
     # Chaque élément de la liste est un tableau NumPy converti en liste de listes Python.
     tableaus_history = models.JSONField(blank=True, null=True)

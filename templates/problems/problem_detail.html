@@ -11,9 +11,9 @@
         <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
             <div class="bg-gradient-to-r from-primary-600 to-primary-800 py-6 px-6 flex justify-between items-center">
                 <h2 class="text-2xl font-bold text-white">{{ problem.nom }}</h2>
-                <a href="{% url 'create_manual_problem' %}" class="bg-white text-primary-600 hover:bg-primary-50 px-4 py-2 rounded-lg text-sm font-semibold transition-colors duration-200">
+                <a href="{% url 'dashboard' %}" class="bg-white text-primary-600 hover:bg-primary-50 px-4 py-2 rounded-lg text-sm font-semibold transition-colors duration-200">
                     <svg class="h-4 w-4 inline-block mr-1 -mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 15l-3-3m0 0l3-3m-3 3h8M3 12a9 9 0 1118 0 9 9 0 01-18 0z"></path></svg>
-                    Retour aux problèmes
+                    Retour au Dashboard
                 </a>
             </div>
 
@@ -92,7 +92,7 @@
                 </div>
 
                 <div class="mt-8 text-center">
-                    {% if not problem.status %}
+                    {% if not problem.status or problem.status == 'pending' %}
                     <form action="{% url 'solve_problem' problem.pk %}" method="post" class="inline-block">
                         {% csrf_token %}
                         <button type="submit" class="bg-primary-600 hover:bg-primary-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 flex items-center justify-center">
@@ -101,9 +101,19 @@
                         </button>
                     </form>
                     {% else %}
-                        <div class="p-4 bg-blue-100 text-blue-800 rounded-lg shadow-md">
-                            <p class="font-semibold">Ce problème a déjà été résolu.</p>
-                            <p class="text-sm mt-1">Vous pouvez consulter les résultats ci-dessous.</p>
+                        <div class="p-4 {% if problem.status == 'optimal' %}bg-green-100 text-green-800{% elif problem.status == 'infeasible' or problem.status == 'error' %}bg-red-100 text-red-800{% elif problem.status == 'unbounded' %}bg-orange-100 text-orange-800{% elif problem.status == 'unsupported' %}bg-yellow-100 text-yellow-800{% else %}bg-blue-100 text-blue-800{% endif %} rounded-lg shadow-md">
+                            <p class="font-semibold">Statut du problème : {{ problem.get_status_display }}</p>
+                            {% if problem.status == 'optimal' %}
+                                <p class="text-sm mt-1">Une solution optimale a été trouvée. Vous pouvez consulter les résultats ci-dessous.</p>
+                            {% elif problem.status == 'infeasible' %}
+                                <p class="text-sm mt-1">Le problème n'a pas de solution réalisable.</p>
+                            {% elif problem.status == 'unbounded' %}
+                                <p class="text-sm mt-1">Le problème est non borné.</p>
+                            {% elif problem.status == 'unsupported' %}
+                                <p class="text-sm mt-1">Ce type de problème n'est pas supporté par le solveur actuel.</p>
+                            {% elif problem.status == 'error' %}
+                                <p class="text-sm mt-1">Une erreur est survenue lors de la résolution.</p>
+                            {% endif %}
                         </div>
                     {% endif %}
                 </div>
